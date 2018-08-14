@@ -14,6 +14,7 @@
 //   Kaiku Health <dev@kaikuhealth.com>
 
 const uuidv4 = require("uuid/v4");
+const FormatedDate = require("./FormatedDate");
 
 // class Cron {
 //   constructor()
@@ -23,19 +24,25 @@ class Notifier {
   constructor(robot) {
     this.robot = robot;
     if (this.robot.brain.data.decisions == null) {
-      this.robot.brain.data.decisions = {};
+      this.robot.brain.data.decisions = new Map();
     }
   }
 
   add(message) {
-    console.log(message);
     let id = uuidv4();
     let text = message.message.text;
     let user = message.message.user;
     let room = message.message.room;
     let time = Date.now();
-    this.robot.brain.data.decisions[id] = { text, user, room, time };
-    console.log(this.robot.brain.data.decisions);
+    this.robot.brain.data.decisions.set(id, { text, user, room, time });
+  }
+}
+
+function* formatEntries(entryIterable) {
+  let i = 1;
+  for (let value of entryIterable) {
+    yield `${i}) ${value.text}. By @${value.user.name} in ${value.room}\n`;
+    i = i + 1;
   }
 }
 
@@ -52,7 +59,12 @@ module.exports = robot => {
     if (decisions.length < 1) {
       response.reply("No decisions made");
     }
-    response.reply(`Number of decisions ${Object.keys(decisions).length}`);
+    let formatedEntries = "";
+    for (let entry of formatEntries(decisions.values())) {
+      formatedEntries = formatedEntries + entry;
+    }
+    response.reply(`Decisions made since ${FormatedDate.weekAgo()}:
+${formatedEntries}`);
   });
 
   // list decisions numbered list

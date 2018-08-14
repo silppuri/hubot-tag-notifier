@@ -15,7 +15,7 @@ chai.use(require("sinon-chai"));
 
 describe('require("tag-notifier")', () => {
   it("exports a function", () => {
-    expect(require("../index")).to.be.a("Function");
+    expect(require("..")).to.be.a("Function");
   });
 });
 
@@ -29,7 +29,7 @@ describe("tag-notifier", () => {
       robot.brain.userForId("1", {
         name: "john",
         real_name: "John Doe",
-        room: "#test"
+        room: "test"
       });
     });
     robot.run();
@@ -40,27 +40,42 @@ describe("tag-notifier", () => {
     robot.shutdown();
   });
 
-  it("responds to hello", done => {
+  it("responds to list decisions", done => {
     robot.adapter.on("reply", function(envelope, strings) {
       const answer = strings[0];
 
-      expect(answer).to.eql("hello!");
-
-      done();
-    });
-
-    robot.adapter.receive(new TextMessage(user, "hubot hello"));
-  });
-
-  it("hears #decision", done => {
-    robot.adapter.on("send", function(envelope, strings) {
-      const answer = strings[0];
-
-      expect(answer).not.to.eql("yarly");
+      expect(robot.brain.data.decisions.size).to.eql(1);
+      expect(answer).to.contain("Decisions made");
 
       done();
     });
 
     robot.adapter.receive(new TextMessage(user, "#decision has been made"));
+    robot.adapter.receive(new TextMessage(user, "hubot list decisions"));
+  });
+
+  it("saves complex messages", done => {
+    robot.adapter.on("reply", function(envelope, strings) {
+      const answer = strings[0];
+
+      expect(robot.brain.data.decisions.size).to.eql(2);
+      expect(answer).to.equal(`Decisions made since 07.08.2018:
+1) @Bonnie and @Clyde have made a #decision to rob a bank. By @john in test
+2) We are going to buy a pool table #decision. By @john in test
+`);
+
+      done();
+    });
+
+    robot.adapter.receive(
+      new TextMessage(
+        user,
+        "@Bonnie and @Clyde have made a #decision to rob a bank"
+      )
+    );
+    robot.adapter.receive(
+      new TextMessage(user, "We are going to buy a pool table #decision")
+    );
+    robot.adapter.receive(new TextMessage(user, "hubot list decisions"));
   });
 });
