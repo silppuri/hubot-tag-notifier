@@ -17,6 +17,7 @@
     "url": "https://github.com/hubotio/hubot-tag-notifier/issues"
   },
   "dependencies": {
+    "moment": "^2.22.2",
     "uuid": "^3.3.2"
   },
   "peerDependencies": {
@@ -26,6 +27,7 @@
     "chai": "^2.1.1",
     "hubot": "^3.0.0",
     "hubot-mock-adapter-v3": "^1.0.1",
+    "hubot-test-helper": "^1.9.0",
     "mocha": "^2.1.0",
     "sinon": "^1.13.0",
     "sinon-chai": "^2.7.0"
