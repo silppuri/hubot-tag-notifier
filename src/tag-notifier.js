@@ -53,8 +53,28 @@ function formatEntries(entries) {
   return result;
 }
 
+function runTagNagger(robot, notifier, response) {
+  let decisions = notifier.robot.brain.data.decisions;
+  let responseString = `Decisions made since ${FormatedDate.weekAgo()}:
+${formatEntries(decisions)}`;
+  if (response !== undefined) {
+    response.reply(responseString);
+  } else {
+    robot.messageRoom("Shell", responseString);
+  }
+}
+
 module.exports = robot => {
   const notifier = new Notifier(robot);
+  const job = new CronJob({
+    cronTime: "00 09 * * Mon",
+    onTick: () => {
+      runTagNagger(robot, notifier);
+    },
+    start: false,
+    timeZone: "Europe/Helsinki"
+  });
+  job.start();
 
   // Listen to all messages containing "decision"
   robot.hear(/#decision/, decisionMessage => {
@@ -62,9 +82,7 @@ module.exports = robot => {
   });
 
   robot.respond(/list decisions/i, response => {
-    let decisions = notifier.robot.brain.data.decisions;
-    response.reply(`Decisions made since ${FormatedDate.weekAgo()}:
-${formatEntries(decisions)}`);
+    runTagNagger(robot, notifier, response);
   });
 
   // list decisions numbered list
