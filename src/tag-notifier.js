@@ -24,7 +24,7 @@ class Notifier {
   constructor(robot) {
     this.robot = robot;
     if (this.robot.brain.data.decisions == null) {
-      this.robot.brain.data.decisions = new Map();
+      this.robot.brain.data.decisions = {};
     }
   }
 
@@ -34,16 +34,25 @@ class Notifier {
     let user = message.message.user;
     let room = message.message.room;
     let time = Date.now();
-    this.robot.brain.data.decisions.set(id, { text, user, room, time });
+    this.robot.brain.data.decisions[id] = { text, user, room, time };
   }
 }
 
-function* formatEntries(entryIterable) {
+function formatEntries(entries) {
+  let result = "";
   let i = 1;
-  for (let value of entryIterable) {
-    yield `${i}) ${value.text}. By @${value.user.name} in ${value.room}\n`;
-    i = i + 1;
+  if (Object.keys(entries).length < 1) {
+    result = "No decisions made";
+  } else {
+    for (let key in entries) {
+      let value = entries[key];
+      result =
+        result +
+        `${i}) ${value.text}. By @${value.user.name} in ${value.room}\n`;
+      i = i + 1;
+    }
   }
+  return result;
 }
 
 module.exports = robot => {
@@ -56,15 +65,8 @@ module.exports = robot => {
 
   robot.respond(/list decisions/i, response => {
     let decisions = notifier.robot.brain.data.decisions;
-    if (decisions.length < 1) {
-      response.reply("No decisions made");
-    }
-    let formatedEntries = "";
-    for (let entry of formatEntries(decisions.values())) {
-      formatedEntries = formatedEntries + entry;
-    }
     response.reply(`Decisions made since ${FormatedDate.weekAgo()}:
-${formatedEntries}`);
+${formatEntries(decisions)}`);
   });
 
   // list decisions numbered list

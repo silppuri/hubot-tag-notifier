@@ -44,7 +44,7 @@ describe("tag-notifier", () => {
     robot.adapter.on("reply", function(envelope, strings) {
       const answer = strings[0];
 
-      expect(robot.brain.data.decisions.size).to.eql(1);
+      expect(Object.keys(robot.brain.data.decisions).length).to.eql(1);
       expect(answer).to.contain("Decisions made");
 
       done();
@@ -58,7 +58,7 @@ describe("tag-notifier", () => {
     robot.adapter.on("reply", function(envelope, strings) {
       const answer = strings[0];
 
-      expect(robot.brain.data.decisions.size).to.eql(2);
+      expect(Object.keys(robot.brain.data.decisions).length).to.eql(2);
       expect(answer).to.equal(`Decisions made since 07.08.2018:
 1) @Bonnie and @Clyde have made a #decision to rob a bank. By @john in test
 2) We are going to buy a pool table #decision. By @john in test
