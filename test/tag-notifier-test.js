@@ -21,8 +21,10 @@ describe('require("tag-notifier")', () => {
 
 describe("tag-notifier", () => {
   let robot, user;
-
+  let oldDateNow = null;
   beforeEach(() => {
+    oldDateNow = Date.now;
+    Date.now = () => 1534250076293;
     robot = new Robot(null, "mock-adapter-v3", false, "hubot");
     robot.loadFile(path.resolve("src/"), "tag-notifier.js");
     robot.adapter.on("connected", () => {
@@ -37,6 +39,7 @@ describe("tag-notifier", () => {
   });
 
   afterEach(() => {
+    Date.now = oldDateNow;
     robot.shutdown();
   });
 
@@ -60,17 +63,30 @@ describe("tag-notifier", () => {
 
       expect(Object.keys(robot.brain.data.decisions).length).to.eql(2);
       expect(answer).to.equal(`Decisions made since 07.08.2018:
-1) @Bonnie and @Clyde have made a #decision to rob a bank. By @john in test
-2) We are going to buy a pool table #decision. By @john in test
+1) By @john in test
+Status meeting 15.8.2018
+Present: @Sam, @Pete, @Bonnie, @Clyde
+Launch plan for Munchies & Banjos:
+  - At the end of August (whenever we are ready) launch the rocket to the orbit.
+  - 17th of September, prepare some ragu.
+  - Everything else follows behind
+#decision
+2) By @john in test
+We are going to buy a pool table #decision
 `);
-
       done();
     });
 
     robot.adapter.receive(
       new TextMessage(
         user,
-        "@Bonnie and @Clyde have made a #decision to rob a bank"
+        `Status meeting 15.8.2018
+Present: @Sam, @Pete, @Bonnie, @Clyde
+Launch plan for Munchies & Banjos:
+  - At the end of August (whenever we are ready) launch the rocket to the orbit.
+  - 17th of September, prepare some ragu.
+  - Everything else follows behind
+#decision`
       )
     );
     robot.adapter.receive(

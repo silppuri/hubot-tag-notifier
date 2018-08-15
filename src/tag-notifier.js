@@ -15,10 +15,8 @@
 
 const uuidv4 = require("uuid/v4");
 const FormatedDate = require("./FormatedDate");
-
-// class Cron {
-//   constructor()
-// }
+const CronJob = require("cron").CronJob;
+const twitter = require("twitter-text");
 
 class Notifier {
   constructor(robot) {
@@ -46,9 +44,9 @@ function formatEntries(entries) {
   } else {
     for (let key in entries) {
       let value = entries[key];
-      result =
-        result +
-        `${i}) ${value.text}. By @${value.user.name} in ${value.room}\n`;
+      let entryString = `${i}) By @${value.user.name} in ${value.room}\n`;
+      entryString = entryString + value.text;
+      result = result + entryString + "\n";
       i = i + 1;
     }
   }
