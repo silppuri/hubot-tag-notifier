@@ -23,19 +23,19 @@
     "uuid": "^3.3.2"
   },
   "peerDependencies": {
-    "hubot": ">=2 <10 || 0.0.0-development"
+    "hubot": ">=3 <10 || 0.0.0-development"
   },
   "devDependencies": {
-    "chai": "^2.1.1",
+    "chai": "^4.1.2",
     "hubot": "^3.0.0",
     "hubot-mock-adapter-v3": "^1.0.1",
     "hubot-test-helper": "^1.9.0",
-    "mocha": "^2.1.0",
-    "sinon": "^1.13.0",
-    "sinon-chai": "^2.7.0"
+    "mocha": "^5.2.0",
+    "sinon": "^6.1.5",
+    "sinon-chai": "^3.2.0"
   },
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --exit"
   }
 }
