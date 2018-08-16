@@ -13,16 +13,17 @@ In hubot project repo, run:
 Then add **hubot-tag-notifier** to your `external-scripts.json`:
 
 ```json
-[
-  "hubot-tag-notifier"
-]
+["hubot-tag-notifier"]
 ```
 
 ## Sample Interaction
 
 ```
-hubot> hubot hello
-hubot> hello!
+John> I claim this microservice for me #decision
+John> Hubot list decisions
+Hubot> Decisions made since 09.08.2018:
+1) By @Shell in Shell
+I claim this microservice for me #decision
 ```
 
 ## NPM Module
