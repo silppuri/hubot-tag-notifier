@@ -2,7 +2,7 @@
   "name": "hubot-tag-notifier",
   "description": "Timely notifier of tags gathered from flowdock",
   "version": "1.0.0",
-  "author": "Kaiku Health <dev@kaikuhealth.com>",
+  "author": "Petri Avikainen <petri.avikainen@gmail.com",
   "license": "MIT",
   "keywords": [
     "flowdock",
