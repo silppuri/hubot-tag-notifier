@@ -6,6 +6,7 @@
 // Configuration:
 //
 // Commands:
+//   list decisions
 //
 // Notes:
 //   <optional notes required for the script>
@@ -13,26 +14,27 @@
 // Author:
 //   Kaiku Health <dev@kaikuhealth.com>
 
+const moment = require("moment");
 const uuidv4 = require("uuid/v4");
 const FormatedDate = require("./FormatedDate");
 const CronJob = require("cron").CronJob;
-const twitter = require("twitter-text");
+const text = require("twitter-text");
 
 class Notifier {
   constructor(robot) {
     this.robot = robot;
     if (this.robot.brain.data.decisions == null) {
-      this.robot.brain.data.decisions = {};
+      this.robot.brain.data.decisions = [];
     }
   }
 
   add(message) {
     let id = uuidv4();
-    let text = message.message.text;
-    let user = message.message.user;
-    let room = message.message.room;
+    let text = message.text;
+    let user = message.user;
+    let room = message.room;
     let time = Date.now();
-    this.robot.brain.data.decisions[id] = { text, user, room, time };
+    this.robot.brain.data.decisions.push({ id, text, user, room, time });
   }
 }
 
@@ -53,8 +55,17 @@ function formatEntries(entries) {
   return result;
 }
 
+function getNotificationsFromWeekAgo(notifications) {
+  let dateWeekAgo = moment().subtract(7, "d");
+  return notifications.filter(notification => {
+    return moment(notification.time) > dateWeekAgo;
+  });
+}
+
 function runTagNagger(robot, notifier, response) {
-  let decisions = notifier.robot.brain.data.decisions;
+  let decisions = getNotificationsFromWeekAgo(
+    notifier.robot.brain.data.decisions
+  );
   let responseString = `Decisions made since ${FormatedDate.weekAgo()}:
 ${formatEntries(decisions)}`;
   if (response !== undefined) {
@@ -62,6 +73,10 @@ ${formatEntries(decisions)}`;
   } else {
     robot.messageRoom("Shell", responseString);
   }
+}
+
+function containsNotifiableTag(message) {
+  return text.extractHashtags(message).indexOf("decision") != -1;
 }
 
 module.exports = robot => {
@@ -78,14 +93,14 @@ module.exports = robot => {
 
   // Listen to all messages containing "decision"
   robot.hear(/#decision/, decisionMessage => {
-    notifier.add(decisionMessage);
+    if (containsNotifiableTag(decisionMessage.message.text)) {
+      notifier.add(decisionMessage.message);
+    }
   });
 
   robot.respond(/list decisions/i, response => {
     runTagNagger(robot, notifier, response);
   });
-
-  // list decisions numbered list
 
   // remove decision by number
 
